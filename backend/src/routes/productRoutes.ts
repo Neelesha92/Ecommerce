@@ -1,0 +1,115 @@
+import express from "express";
+import { authenticate, authorize } from "../middleware/auth";
+import prisma from "../prismaClient";
+
+const router = express.Router();
+
+// Get all products (public)
+
+router.get("/", async (req, res) => {
+  try {
+    const products = await prisma.product.findMany();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching products" });
+  }
+});
+
+// get single product (admin only)
+
+router.post("/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    const product = await prisma.product.findUnique({ where: { id } });
+    if (!product) {
+      return res.status(404).json({ message: "product not found!" });
+    }
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching product" });
+  }
+});
+
+// create a product(admin only)
+
+router.post("/", authenticate, authorize(["ADMIN"]), async (req, res) => {
+  const { name, description, price, stock, image, categoryId } = req.body;
+
+  if (!name || !description || !price || !stock || !image || !categoryId) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  const category = await prisma.category.findUnique({
+    where: { id: Number(categoryId) },
+  });
+  if (!category) {
+    return res.status(400).json({ message: "Category not found" });
+  }
+
+  try {
+    const product = await prisma.product.create({
+      data: {
+        name,
+        description,
+        price: Number(price),
+        stock: Number(stock),
+        image,
+        categoryId: Number(categoryId),
+      },
+      include: {
+        category: true,
+      },
+    });
+    res.status(201).json(product);
+  } catch (err) {
+    res.status(500).json({ message: "Error creating product" });
+  }
+});
+
+// update product (admin only)
+
+router.put("/:id", authenticate, authorize(["ADMIN"]), async (req, res) => {
+  const id = parseInt(req.params.id);
+  const { name, description, price, stock, image } = req.body;
+
+  // Build the update data object dynamically
+  const data: any = {};
+  if (name !== undefined) data.name = name;
+  if (description !== undefined) data.description = description;
+  if (price !== undefined) data.price = Number(price); // convert to number
+  if (stock !== undefined) data.stock = Number(stock); // convert to number
+  if (image !== undefined) data.image = image;
+
+  try {
+    const product = await prisma.product.update({
+      where: { id },
+      data,
+    });
+    res.json(product);
+  } catch (err: any) {
+    console.error("Update product error:", err);
+    if (err.code === "P2025") {
+      // Prisma "Record not found" error code
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.status(500).json({ message: "Error updating product" });
+  }
+});
+
+// Delete product (admin only)
+
+router.delete("/:id", authenticate, authorize(["ADMIN"]), async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    await prisma.product.delete({
+      where: { id },
+    });
+
+    res.json({ message: "Product deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Error deleting product" });
+  }
+});
+
+export default router;
