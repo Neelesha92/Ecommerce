@@ -1,6 +1,8 @@
 import express from "express";
 import { authenticate, authorize } from "../middleware/auth";
 import prisma from "../prismaClient";
+import upload from "../utils/multer";
+import cloudinary from "../utils/cloudinary";
 
 const router = express.Router();
 
@@ -32,39 +34,54 @@ router.post("/:id", async (req, res) => {
 
 // create a product(admin only)
 
-router.post("/", authenticate, authorize(["ADMIN"]), async (req, res) => {
-  const { name, description, price, stock, image, categoryId } = req.body;
+// create a product (admin only)
+router.post(
+  "/",
+  authenticate,
+  authorize(["ADMIN"]),
+  upload.single("image"), // handle image file
+  async (req, res) => {
+    const { name, description, price, stock, categoryId } = req.body;
 
-  if (!name || !description || !price || !stock || !image || !categoryId) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
+    if (!name || !description || !price || !stock || !req.file || !categoryId) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
-  const category = await prisma.category.findUnique({
-    where: { id: Number(categoryId) },
-  });
-  if (!category) {
-    return res.status(400).json({ message: "Category not found" });
-  }
-
-  try {
-    const product = await prisma.product.create({
-      data: {
-        name,
-        description,
-        price: Number(price),
-        stock: Number(stock),
-        image,
-        categoryId: Number(categoryId),
-      },
-      include: {
-        category: true,
-      },
+    const category = await prisma.category.findUnique({
+      where: { id: Number(categoryId) },
     });
-    res.status(201).json(product);
-  } catch (err) {
-    res.status(500).json({ message: "Error creating product" });
+    if (!category) {
+      return res.status(400).json({ message: "Category not found" });
+    }
+
+    try {
+      // Upload to Cloudinary
+      const uploaded = await cloudinary.uploader.upload(req.file.path, {
+        folder: "products",
+      });
+
+      // Create product in DB
+      const product = await prisma.product.create({
+        data: {
+          name,
+          description,
+          price: Number(price),
+          stock: Number(stock),
+          image: uploaded.secure_url,
+          categoryId: Number(categoryId),
+        },
+        include: {
+          category: true,
+        },
+      });
+
+      res.status(201).json(product);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Error creating product" });
+    }
   }
-});
+);
 
 // update product (admin only)
 

@@ -17,7 +17,7 @@ router.get(
   }),
   (req, res) => {
     // Redirect to frontend after successful login
-    res.redirect("http://localhost:5173/dashboard");
+    res.redirect("http://localhost:5173/home");
   }
 );
 

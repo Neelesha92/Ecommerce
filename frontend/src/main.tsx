@@ -6,6 +6,10 @@ import Login from "./pages/login";
 import ForgotPassword from "./pages/forgotPassword";
 import ResetPassword from "./pages/resetPassword";
 import Home from "./pages/Home";
+import AdminLayout from "./pages/admin/AdminLayout";
+import Dashboard from "./pages/admin/Dashboard";
+import Products from "./pages/admin/products";
+import AddProduct from "./pages/admin/AddProduct";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -18,6 +22,21 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Route path="/home" element={<Home />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        {/* Admin routes */}
+        <Route
+          path="/admin/*"
+          element={
+            <AdminLayout>
+              <Routes>
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="products" element={<Products />} />
+                <Route path="products/add-products" element={<AddProduct />} />
+
+                {/* future routes */}
+              </Routes>
+            </AdminLayout>
+          }
+        />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
