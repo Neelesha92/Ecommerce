@@ -10,6 +10,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/products";
 import AddProduct from "./pages/admin/AddProduct";
+import EditProduct from "./pages/admin/EditPrroducts";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="products" element={<Products />} />
                 <Route path="products/add-products" element={<AddProduct />} />
+                <Route path="/products/edit/:id" element={<EditProduct />} />
 
                 {/* future routes */}
               </Routes>

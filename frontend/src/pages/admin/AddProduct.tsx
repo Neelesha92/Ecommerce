@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 
 interface Category {
@@ -17,12 +17,12 @@ const AddProduct: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   // Fetch categories on mount
-  useState(() => {
+  useEffect(() => {
     fetch("http://localhost:5000/categories")
       .then((res) => res.json())
       .then((data) => setCategories(data))
       .catch((err) => console.error(err));
-  });
+  }, []);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -47,6 +47,7 @@ const AddProduct: React.FC = () => {
 
     try {
       const token = localStorage.getItem("token");
+
       const res = await fetch("http://localhost:5000/products", {
         method: "POST",
         headers: {
@@ -56,9 +57,11 @@ const AddProduct: React.FC = () => {
       });
 
       const data = await res.json();
+
       if (res.ok) {
         setMessage("Product added successfully!");
-        // Clear form
+
+        // Reset form
         setName("");
         setDescription("");
         setPrice("");
