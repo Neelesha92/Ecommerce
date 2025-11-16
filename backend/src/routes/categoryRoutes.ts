@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { authenticate, authorize } from "../middleware/auth";
 import prisma from "../prismaClient";
+import { setHeapSnapshotNearHeapLimit } from "v8";
+import { channel } from "diagnostics_channel";
 
 const router = Router();
 
@@ -10,6 +12,20 @@ router.get("/", async (_req, res) => {
     include: { products: true },
   });
   res.json(categories);
+});
+
+router.get("/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    const product = await prisma.product.findUnique({ where: { id } });
+    if (!product) {
+      return res.status(404).json({ message: "product not found!" });
+    }
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching product" });
+  }
 });
 
 // POST create category (Admin only)

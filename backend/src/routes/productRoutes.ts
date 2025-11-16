@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
 
 // get single product (admin only)
 
-router.post("/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   try {
     const product = await prisma.product.findUnique({ where: { id } });
@@ -84,34 +84,47 @@ router.post(
 );
 
 // update product (admin only)
+router.put(
+  "/:id",
+  authenticate,
+  authorize(["ADMIN"]),
+  upload.single("image"),
+  async (req, res) => {
+    const id = parseInt(req.params.id);
+    const { name, description, price, stock, categoryId } = req.body;
 
-router.put("/:id", authenticate, authorize(["ADMIN"]), async (req, res) => {
-  const id = parseInt(req.params.id);
-  const { name, description, price, stock, image } = req.body;
+    try {
+      const data: any = {
+        name,
+        description,
+        price: Number(price),
+        stock: Number(stock),
+        categoryId: Number(categoryId),
+      };
 
-  // Build the update data object dynamically
-  const data: any = {};
-  if (name !== undefined) data.name = name;
-  if (description !== undefined) data.description = description;
-  if (price !== undefined) data.price = Number(price); // convert to number
-  if (stock !== undefined) data.stock = Number(stock); // convert to number
-  if (image !== undefined) data.image = image;
+      // If new file uploaded → upload to cloudinary
+      if (req.file) {
+        const uploaded = await cloudinary.uploader.upload(req.file.path, {
+          folder: "products",
+        });
+        data.image = uploaded.secure_url;
+      }
 
-  try {
-    const product = await prisma.product.update({
-      where: { id },
-      data,
-    });
-    res.json(product);
-  } catch (err: any) {
-    console.error("Update product error:", err);
-    if (err.code === "P2025") {
-      // Prisma "Record not found" error code
-      return res.status(404).json({ message: "Product not found" });
+      const product = await prisma.product.update({
+        where: { id },
+        data,
+      });
+
+      res.json(product);
+    } catch (err: any) {
+      console.error("Update product error:", err);
+      if (err.code === "P2025") {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      res.status(500).json({ message: "Error updating product" });
     }
-    res.status(500).json({ message: "Error updating product" });
   }
-});
+);
 
 // Delete product (admin only)
 
