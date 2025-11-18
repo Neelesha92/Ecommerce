@@ -11,7 +11,11 @@ import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/products";
 import AddProduct from "./pages/admin/AddProduct";
 import EditProduct from "./pages/admin/EditPrroducts";
+import EditCategory from "./pages/admin/EditCategory";
 import "./index.css";
+import Categories from "./pages/admin/categories";
+import AddCategories from "./pages/admin/AddCategory";
+import ProductsPage from "./pages/ProductsPage";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -23,6 +27,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Route path="/home" element={<Home />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/products-page" element={<ProductsPage />} />
+
         {/* Admin routes */}
         <Route
           path="/admin/*"
@@ -33,8 +39,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 <Route path="products" element={<Products />} />
                 <Route path="products/add-products" element={<AddProduct />} />
                 <Route path="/products/edit/:id" element={<EditProduct />} />
-
-                {/* future routes */}
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/edit-category/:id" element={<EditCategory />} />
+                <Route path="/add-category" element={<AddCategories />} />
               </Routes>
             </AdminLayout>
           }

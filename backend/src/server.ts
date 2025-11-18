@@ -44,6 +44,7 @@ app.use("/oauth", oauthRouter);
 
 app.use("/products", productRoutes);
 app.use("/categories", categoryRoutes);
+app.use("/api/products", productRoutes);
 
 // Health check
 app.get("/health", (_req, res) => res.json({ ok: true }));

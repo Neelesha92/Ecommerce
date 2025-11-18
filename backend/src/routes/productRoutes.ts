@@ -6,13 +6,101 @@ import cloudinary from "../utils/cloudinary";
 
 const router = express.Router();
 
-// Get all products (public)
+//Get all products (public) with pagination
 
 router.get("/", async (req, res) => {
   try {
-    const products = await prisma.product.findMany();
-    res.json(products);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const skip = (page - 1) * limit;
+
+    //fetch paginated products
+    const products = await prisma.product.findMany({
+      skip: skip,
+      take: limit,
+      orderBy: {
+        id: "desc",
+      },
+    });
+    // count total products
+    const totalProducts = await prisma.product.count();
+
+    res.json({
+      success: true,
+      data: products,
+      currentPage: page,
+      totalPages: Math.ceil(totalProducts / limit),
+      totalItems: totalProducts,
+    });
   } catch (err) {
+    console.error("Pagination error:", err);
+    res.status(500).json({ message: "Error fetching products" });
+  }
+});
+
+router.get("/filter", async (req, res) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const categoryId = req.query.categoryId
+      ? Number(req.query.categoryId)
+      : undefined;
+
+    const priceMin = req.query.priceMin
+      ? Number(req.query.priceMin)
+      : undefined;
+    const priceMax = req.query.priceMax
+      ? Number(req.query.priceMax)
+      : undefined;
+    const search = req.query.q ? String(req.query.q) : undefined;
+    const sort = req.query.sort ? String(req.query.sort) : undefined;
+
+    // build prisma filter object
+    const where: any = {};
+    if (categoryId) where.categoryId = categoryId;
+    if (priceMin != null || priceMax != null) {
+      // null or undefined
+      where.price = {};
+      if (priceMin != null) where.price.gte = priceMin;
+      if (priceMax != null) where.price.lte = priceMax;
+    }
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+      ];
+    }
+
+    // Build orderBy
+    let orderBy: any = { id: "desc" };
+    if (sort === "price_asc") orderBy = { price: "asc" };
+    else if (sort === "price_desc") orderBy = { price: "desc" };
+    else if (sort === "newest") orderBy = { createdAt: "desc" };
+    else if (sort === "oldest") orderBy = { createdAt: "asc" };
+
+    // Fetch products
+    const products = await prisma.product.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy,
+      include: { category: true },
+    });
+
+    const totalProducts = await prisma.product.count({ where });
+
+    res.json({
+      data: products,
+      currentPage: page,
+      totalPages: Math.ceil(totalProducts / limit),
+      totalItems: totalProducts,
+    });
+  } catch (err) {
+    console.error("Error fetching products:", err);
     res.status(500).json({ message: "Error fetching products" });
   }
 });
@@ -31,8 +119,6 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: "Error fetching product" });
   }
 });
-
-// create a product(admin only)
 
 // create a product (admin only)
 router.post(

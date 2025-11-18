@@ -14,20 +14,31 @@ const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const [page, setPage] = useState(1);
+  const [limit] = useState(5);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchProducts = async (pageNum: number) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/products?page=${pageNum}&limit=${limit}`
+      );
+
+      const data = await res.json();
+
+      setProducts(data.data);
+      setTotalPages(data.totalPages);
+      setPage(data.currentPage);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/products");
-        const data = await res.json();
-        setProducts(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, []);
+    fetchProducts(page);
+  }, [page]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Delete product?")) return;
@@ -36,8 +47,12 @@ const Products: React.FC = () => {
         method: "DELETE",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      if (res.ok) setProducts((p) => p.filter((x) => x.id !== id));
-      else alert("Delete failed");
+
+      if (res.ok) {
+        setProducts((p) => p.filter((x) => x.id !== id));
+      } else {
+        alert("Delete failed");
+      }
     } catch (err) {
       console.error(err);
       alert("Error deleting product");
@@ -59,6 +74,7 @@ const Products: React.FC = () => {
         </Link>
       </div>
 
+      {/* Products Table */}
       <div className="bg-white rounded-lg shadow overflow-auto">
         <table className="min-w-full text-sm">
           <thead className="bg-gray-50">
@@ -74,7 +90,8 @@ const Products: React.FC = () => {
           <tbody>
             {products.map((p, i) => (
               <tr key={p.id} className="border-t">
-                <td className="px-4 py-3">{i + 1}</td>
+                <td className="px-4 py-3">{(page - 1) * limit + (i + 1)}</td>
+
                 <td className="px-4 py-3">
                   {p.image ? (
                     <img
@@ -88,9 +105,11 @@ const Products: React.FC = () => {
                     </div>
                   )}
                 </td>
+
                 <td className="px-4 py-3">{p.name}</td>
                 <td className="px-4 py-3">${p.price}</td>
                 <td className="px-4 py-3">{p.stock}</td>
+
                 <td className="px-4 py-3 space-x-2">
                   <Link
                     to={`/admin/products/edit/${p.id}`}
@@ -98,6 +117,7 @@ const Products: React.FC = () => {
                   >
                     Edit
                   </Link>
+
                   <button
                     onClick={() => handleDelete(p.id)}
                     className="text-red-600 hover:underline"
@@ -109,6 +129,37 @@ const Products: React.FC = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-4 space-x-2">
+        <button
+          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          Prev
+        </button>
+
+        {[...Array(totalPages)].map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setPage(i + 1)}
+            className={`px-3 py-1 rounded ${
+              page === i + 1 ? "bg-blue-600 text-white" : "bg-gray-200"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+
+        <button
+          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page === totalPages}
+        >
+          Next
+        </button>
       </div>
     </div>
   );

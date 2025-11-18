@@ -1,10 +1,21 @@
 import { Link } from "react-router-dom";
 import { ShoppingCart, Menu } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const cartCount: number = 0; // Replace with real cart state later
+  const [searchTerm, setSearchTerm] = useState<string>(""); // Add this
+  const navigate = useNavigate();
+
+  const handlesearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchTerm.trim() !== "") {
+      navigate(`/search/${searchTerm}`);
+      setSearchTerm("");
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -23,16 +34,24 @@ const Navbar: React.FC = () => {
 
             {/* Search - hidden on small screens */}
             <div className="hidden md:block">
-              <div className="flex items-center bg-gray-100 rounded-md overflow-hidden">
+              <form
+                onSubmit={handlesearch}
+                className="flex items-center bg-gray-100 rounded-md overflow-hidden"
+              >
                 <input
                   type="search"
                   placeholder="Search products, categories..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="px-3 py-2 w-72 bg-transparent outline-none text-sm"
                 />
-                <button className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800">
+                <button
+                  type="submit"
+                  className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800"
+                >
                   Search
                 </button>
-              </div>
+              </form>
             </div>
           </div>
 

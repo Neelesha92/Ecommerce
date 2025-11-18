@@ -17,8 +17,10 @@ const FeaturedProducts: React.FC = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/products"); // replace with your API
-        setProducts(response.data);
+        const response = await axios.get(
+          "http://localhost:5000/api/products?page=1&limit=8"
+        ); // replace with your API
+        setProducts(response.data.data || response.data);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {

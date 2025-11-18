@@ -3,6 +3,8 @@ import { authenticate, authorize } from "../middleware/auth";
 import prisma from "../prismaClient";
 import { setHeapSnapshotNearHeapLimit } from "v8";
 import { channel } from "diagnostics_channel";
+import upload from "../utils/multer";
+import cloudinary from "../utils/cloudinary";
 
 const router = Router();
 
@@ -29,34 +31,60 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST create category (Admin only)
-router.post("/", authenticate, authorize(["ADMIN"]), async (req, res) => {
-  const { name, description } = req.body;
+router.post(
+  "/",
+  authenticate,
+  authorize(["ADMIN"]),
+  upload.single("image"),
+  async (req, res) => {
+    const { name, description } = req.body;
 
-  try {
-    const category = await prisma.category.create({
-      data: { name, description },
-    });
-    res.status(201).json(category);
-  } catch (err) {
-    res.status(500).json({ message: "Error creating category" });
+    try {
+      let imageurl = null;
+      if (req.file) {
+        const uploaded = await cloudinary.uploader.upload(req.file.path, {
+          folder: "categories",
+        });
+        imageurl = uploaded.secure_url;
+      }
+      const category = await prisma.category.create({
+        data: { name, description, image: imageurl },
+      });
+      res.status(201).json(category);
+    } catch (err) {
+      res.status(500).json({ message: "Error creating category" });
+    }
   }
-});
+);
 
 // PUT update category (Admin only)
-router.put("/:id", authenticate, authorize(["ADMIN"]), async (req, res) => {
-  const id = parseInt(req.params.id);
-  const { name, description } = req.body;
+router.put(
+  "/:id",
+  authenticate,
+  authorize(["ADMIN"]),
+  upload.single("image"),
+  async (req, res) => {
+    const id = parseInt(req.params.id);
+    const { name, description } = req.body;
 
-  try {
-    const category = await prisma.category.update({
-      where: { id },
-      data: { name, description },
-    });
-    res.json(category);
-  } catch (err) {
-    res.status(500).json({ message: "Error updating category" });
+    try {
+      let imageurl;
+      if (req.file) {
+        const uploaded = await cloudinary.uploader.upload(req.file.path, {
+          folder: "categories",
+        });
+        imageurl = uploaded.secure_url;
+      }
+      const category = await prisma.category.update({
+        where: { id },
+        data: { name, description, ...(imageurl && { image: imageurl }) },
+      });
+      res.json(category);
+    } catch (err) {
+      res.status(500).json({ message: "Error updating category" });
+    }
   }
-});
+);
 
 // DELETE category (Admin only)
 router.delete("/:id", authenticate, authorize(["ADMIN"]), async (req, res) => {
