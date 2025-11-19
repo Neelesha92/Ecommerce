@@ -16,6 +16,7 @@ import "./index.css";
 import Categories from "./pages/admin/categories";
 import AddCategories from "./pages/admin/AddCategory";
 import ProductsPage from "./pages/ProductsPage";
+import ProductDetailsPage from "./pages/ProductDetails";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -28,6 +29,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/products-page" element={<ProductsPage />} />
+        <Route path="/product/:id" element={<ProductDetailsPage />} />
 
         {/* Admin routes */}
         <Route

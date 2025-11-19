@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
             <Link to="/" className="hover:text-primary">
               Home
             </Link>
-            <Link to="/products" className="hover:text-primary">
+            <Link to="/products-page" className="hover:text-primary">
               Shop
             </Link>
             <Link to="/categories" className="hover:text-primary">

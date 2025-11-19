@@ -62,7 +62,7 @@ const FeaturedProducts: React.FC = () => {
                   ${product.price.toFixed(2)}
                 </p>
                 <Link
-                  to={`/products/${product.id}`}
+                  to={`/product/${product.id}`}
                   className="mt-3 inline-block text-blue-600 hover:underline text-sm"
                 >
                   View Details
