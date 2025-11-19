@@ -60,7 +60,7 @@ router.get("/filter", async (req, res) => {
 
     // build prisma filter object
     const where: any = {};
-    if (categoryId) where.categoryId = categoryId;
+    if (categoryId !== undefined) where.categoryId = categoryId;
     if (priceMin != null || priceMax != null) {
       // null or undefined
       where.price = {};
@@ -110,11 +110,25 @@ router.get("/filter", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   try {
-    const product = await prisma.product.findUnique({ where: { id } });
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        category: true,
+      },
+    });
     if (!product) {
       return res.status(404).json({ message: "product not found!" });
     }
-    res.json(product);
+
+    // fetch related products from same category
+    const relatedProducts = await prisma.product.findMany({
+      where: {
+        categoryId: product.categoryId,
+        id: { not: id }, //exclude the current product
+      },
+      take: 4, // limit number of related products
+    });
+    res.json({ product, relatedProducts });
   } catch (err) {
     res.status(500).json({ message: "Error fetching product" });
   }
