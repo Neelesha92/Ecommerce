@@ -7,6 +7,7 @@ import oauthRouter from "./routes/oauth";
 import session from "express-session";
 import productRoutes from "./routes/productRoutes";
 import categoryRoutes from "./routes/categoryRoutes";
+import cartRoutes from "./routes/cart";
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.use("/oauth", oauthRouter);
 app.use("/products", productRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
+app.use("/cart", cartRoutes);
 
 // Health check
 app.get("/health", (_req, res) => res.json({ ok: true }));

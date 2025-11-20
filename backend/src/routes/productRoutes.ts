@@ -242,4 +242,22 @@ router.delete("/:id", authenticate, authorize(["ADMIN"]), async (req, res) => {
   }
 });
 
+router.get("/:id/reviews", async (req, res) => {
+  const productId = parseInt(req.params.id);
+  const reviews = await prisma.review.findMany({
+    where: { productId },
+    include: { user: { select: { name: true } } },
+  });
+  res.json(reviews);
+});
+
+router.post("/:id/reviews", async (req, res) => {
+  const productId = parseInt(req.params.id);
+  const { rating, comment, userId } = req.body; // get userId from auth
+  const review = await prisma.review.create({
+    data: { rating, comment, productId, userId },
+  });
+  res.json(review);
+});
+
 export default router;
