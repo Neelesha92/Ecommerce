@@ -17,6 +17,7 @@ import Categories from "./pages/admin/categories";
 import AddCategories from "./pages/admin/AddCategory";
 import ProductsPage from "./pages/ProductsPage";
 import ProductDetailsPage from "./pages/ProductDetails";
+import Cart from "./components/cart/cart";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -30,6 +31,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/products-page" element={<ProductsPage />} />
         <Route path="/product/:id" element={<ProductDetailsPage />} />
+        <Route path="/cart" element={<Cart />} />
 
         {/* Admin routes */}
         <Route

@@ -23,6 +23,13 @@ const Login: React.FC = () => {
       const data = await res.json();
       if (res.ok) {
         const role = data.role;
+        const userId = data.user?.id;
+
+        if (!userId) throw new Error("User ID not found in response");
+
+        //save userId in localstorage
+        localStorage.setItem("userId", userId.toString());
+
         localStorage.setItem("token", data.token);
         setMessage("Login successful!");
 

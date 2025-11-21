@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ProductCard from "../components/productCard";
 import Footer from "../components/Footer";
+import handleAddToCart from "../components/cart/addToCart";
 
 interface Product {
   id: number;
@@ -77,10 +78,7 @@ const ProductDetailPage: React.FC = () => {
                 : "Out of Stock"}
             </div>
 
-            <button
-              className="mt-4 bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition-colors"
-              disabled={product.stock === 0}
-            >
+            <button onClick={() => handleAddToCart(product)}>
               Add to Cart
             </button>
           </div>
