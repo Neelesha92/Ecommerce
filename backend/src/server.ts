@@ -8,6 +8,7 @@ import session from "express-session";
 import productRoutes from "./routes/productRoutes";
 import categoryRoutes from "./routes/categoryRoutes";
 import cartRoutes from "./routes/cart";
+import userRoutes from "./routes/user";
 
 dotenv.config();
 
@@ -47,7 +48,7 @@ app.use("/products", productRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/cart", cartRoutes);
-
+app.use("/user", userRoutes);
 // Health check
 app.get("/health", (_req, res) => res.json({ ok: true }));
 

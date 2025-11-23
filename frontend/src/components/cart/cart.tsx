@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CartItemComponent from "./cartItem";
+import Navbar from "../Navbar";
 
 import { getCartItems, updateCartItem, removeCartItem } from "./cartApi";
 
@@ -53,27 +54,30 @@ const Cart: React.FC = () => {
   if (loading) return <p>Loading cart...</p>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
+    <div className="bg-blue-50 min-h-screen">
+      <Navbar />
+      <div className="max-w-3xl mx-auto p-6">
+        <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
 
-      {items.length === 0 ? (
-        <p>Your cart is empty.</p>
-      ) : (
-        <>
-          {items.map((item) => (
-            <CartItemComponent
-              key={item.id}
-              item={item}
-              onUpdate={handleUpdate}
-              onRemove={handleRemove}
-            />
-          ))}
+        {items.length === 0 ? (
+          <p>Your cart is empty.</p>
+        ) : (
+          <>
+            {items.map((item) => (
+              <CartItemComponent
+                key={item.id}
+                item={item}
+                onUpdate={handleUpdate}
+                onRemove={handleRemove}
+              />
+            ))}
 
-          <div className="text-right text-xl font-bold mt-6">
-            Total: ${total.toFixed(2)}
-          </div>
-        </>
-      )}
+            <div className="text-right text-xl font-bold mt-6">
+              Total: ${total.toFixed(2)}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

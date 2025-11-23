@@ -40,6 +40,7 @@ router.get("/:userId", async (req, res) => {
 
 // add to cart
 
+// ADD TO CART
 router.post("/add", async (req, res) => {
   try {
     const { userId, productId, quantity = 1 } = req.body;
@@ -50,27 +51,23 @@ router.post("/add", async (req, res) => {
       cart = await prisma.cart.create({ data: { userId } });
     }
 
-    // check item is already in cart
     const existingItem = await prisma.cartItem.findFirst({
       where: { cartId: cart.id, productId },
     });
 
     if (existingItem) {
-      // update quantity instead
       const updated = await prisma.cartItem.update({
         where: { id: existingItem.id },
         data: { quantity: existingItem.quantity + quantity },
+        include: { product: true }, // <-- FIXED
       });
+
       return res.json(updated);
     }
 
-    // add new item
     const newItem = await prisma.cartItem.create({
-      data: {
-        cartId: cart.id,
-        productId,
-        quantity,
-      },
+      data: { cartId: cart.id, productId, quantity },
+      include: { product: true },
     });
 
     res.json(newItem);
@@ -89,6 +86,9 @@ router.put("/update", async (req, res) => {
     const updated = await prisma.cartItem.update({
       where: { id: itemId },
       data: { quantity },
+      include: {
+        product: true,
+      },
     });
     res.json(updated);
   } catch (error) {

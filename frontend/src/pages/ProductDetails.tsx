@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ProductCard from "../components/productCard";
 import Footer from "../components/Footer";
-import handleAddToCart from "../components/cart/addToCart";
+import handleAddToCart from "../components/cart/addtocart";
 
 interface Product {
   id: number;

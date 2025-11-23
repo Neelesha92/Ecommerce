@@ -18,6 +18,9 @@ import AddCategories from "./pages/admin/AddCategory";
 import ProductsPage from "./pages/ProductsPage";
 import ProductDetailsPage from "./pages/ProductDetails";
 import Cart from "./components/cart/cart";
+import ProfilePage from "./pages/ProfilePage";
+import AddressList from "./pages/AddressList";
+import PrivateRoute from "./components/privateRoute";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -32,6 +35,23 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Route path="/products-page" element={<ProductsPage />} />
         <Route path="/product/:id" element={<ProductDetailsPage />} />
         <Route path="/cart" element={<Cart />} />
+
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <ProfilePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/addresses"
+          element={
+            <PrivateRoute>
+              <AddressList />
+            </PrivateRoute>
+          }
+        />
 
         {/* Admin routes */}
         <Route
