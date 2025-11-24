@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
 
 const Login: React.FC = () => {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -28,9 +30,7 @@ const Login: React.FC = () => {
         if (!userId) throw new Error("User ID not found in response");
 
         //save userId in localstorage
-        localStorage.setItem("userId", userId.toString());
-
-        localStorage.setItem("token", data.token);
+        login(data.token, userId.toString());
         setMessage("Login successful!");
 
         if (role === "ADMIN") {

@@ -2,10 +2,14 @@ import { Link } from "react-router-dom";
 import { ShoppingCart, Menu } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
+import { useCart } from "../context/useCart";
 
 const Navbar: React.FC = () => {
+  const { getTotalQuantity } = useCart();
+  const { isLoggedIn, logout } = useAuth();
   const [open, setOpen] = useState<boolean>(false);
-  const cartCount: number = 0; // Replace with real cart state later
+  const cartCount = getTotalQuantity();
   const [searchTerm, setSearchTerm] = useState<string>(""); // Add this
   const navigate = useNavigate();
 
@@ -75,18 +79,37 @@ const Navbar: React.FC = () => {
           <div className="flex items-center gap-4">
             {/* Login/Sign up - hidden on small screens */}
             <div className="hidden md:flex items-center gap-3">
-              <Link
-                to="/login"
-                className="text-sm px-3 py-1 hover:text-primary"
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="text-sm bg-primary px-3 py-1 rounded hover:bg-blue-600"
-              >
-                Sign up
-              </Link>
+              {!isLoggedIn ? (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-sm px-3 py-1 hover:text-primary"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="text-sm bg-primary px-3 py-1 rounded hover:bg-blue-600"
+                  >
+                    Sign up
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/profile"
+                    className="text-sm px-3 py-1 rounded hover:text-primary"
+                  >
+                    My Profile
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="text-sm px-3 py-1 rounded hover:text-red-600"
+                  >
+                    Logout
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Cart icon */}

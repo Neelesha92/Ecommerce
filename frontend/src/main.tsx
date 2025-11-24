@@ -21,56 +21,73 @@ import Cart from "./components/cart/cart";
 import ProfilePage from "./pages/ProfilePage";
 import AddressList from "./pages/AddressList";
 import PrivateRoute from "./components/privateRoute";
+import { AuthProvider } from "./context/authcontext";
+import { CartProvider } from "./context/cartContext";
+import Checkout from "./pages/checkout";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/products-page" element={<ProductsPage />} />
-        <Route path="/product/:id" element={<ProductDetailsPage />} />
-        <Route path="/cart" element={<Cart />} />
+    <AuthProvider>
+      <CartProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/products-page" element={<ProductsPage />} />
+            <Route path="/product/:id" element={<ProductDetailsPage />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
 
-        <Route
-          path="/profile"
-          element={
-            <PrivateRoute>
-              <ProfilePage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/addresses"
-          element={
-            <PrivateRoute>
-              <AddressList />
-            </PrivateRoute>
-          }
-        />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <ProfilePage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/addresses"
+              element={
+                <PrivateRoute>
+                  <AddressList />
+                </PrivateRoute>
+              }
+            />
 
-        {/* Admin routes */}
-        <Route
-          path="/admin/*"
-          element={
-            <AdminLayout>
-              <Routes>
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="products" element={<Products />} />
-                <Route path="products/add-products" element={<AddProduct />} />
-                <Route path="/products/edit/:id" element={<EditProduct />} />
-                <Route path="/categories" element={<Categories />} />
-                <Route path="/edit-category/:id" element={<EditCategory />} />
-                <Route path="/add-category" element={<AddCategories />} />
-              </Routes>
-            </AdminLayout>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+            {/* Admin routes */}
+            <Route
+              path="/admin/*"
+              element={
+                <AdminLayout>
+                  <Routes>
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="products" element={<Products />} />
+                    <Route
+                      path="products/add-products"
+                      element={<AddProduct />}
+                    />
+                    <Route
+                      path="/products/edit/:id"
+                      element={<EditProduct />}
+                    />
+                    <Route path="/categories" element={<Categories />} />
+                    <Route
+                      path="/edit-category/:id"
+                      element={<EditCategory />}
+                    />
+                    <Route path="/add-category" element={<AddCategories />} />
+                  </Routes>
+                </AdminLayout>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </CartProvider>
+    </AuthProvider>
   </React.StrictMode>
 );

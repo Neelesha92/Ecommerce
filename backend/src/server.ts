@@ -9,6 +9,7 @@ import productRoutes from "./routes/productRoutes";
 import categoryRoutes from "./routes/categoryRoutes";
 import cartRoutes from "./routes/cart";
 import userRoutes from "./routes/user";
+import orderRoutes from "./routes/order";
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use("/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/cart", cartRoutes);
 app.use("/user", userRoutes);
+app.use("/orders", orderRoutes);
 // Health check
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
