@@ -35,7 +35,8 @@ export const getCartItems = async (): Promise<CartItem[]> => {
   );
 
   return res.data.items.map((i: CartItemBackend) => ({
-    id: i.product.id,
+    id: i.id,
+    productId: i.product.id,
     name: i.product.name,
     price: i.product.price,
     image: i.product.image || "",
