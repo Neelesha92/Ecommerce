@@ -1,28 +1,25 @@
 import express from "express";
 import prisma from "../prismaClient";
-import { authenticate } from "../middleware/auth"; // JWT auth
+import { authenticate } from "../middleware/auth";
 import { Request } from "express";
+import { User } from "@prisma/client";
 
-// Extend Request type locally
 interface AuthRequest extends Request {
-  user?: {
-    id: number;
-    email?: string;
-    name?: string;
-  };
+  user?: User;
 }
 
 const router = express.Router();
 
 // Create a new order
-router.post("/", authenticate, async (req, res) => {
+router.post("/", authenticate, async (req: Request, res) => {
   try {
-    if (!req.user) {
+    const authReq = req as Request & { user?: User };
+    if (!authReq.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const userId = Number(req.params.userId);
-    const { items, total } = req.body;
+    const userId = authReq.user.id;
+    const { items, total } = authReq.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
@@ -52,15 +49,22 @@ router.post("/", authenticate, async (req, res) => {
   }
 });
 
-// Get user orders
-router.get("/", authenticate, async (req, res) => {
+// Get all orders for logged-in user
+router.get("/", authenticate, async (req: Request, res) => {
   try {
-    const userId = Number(req.params.userId);
+    const authReq = req as Request & { user?: User };
+    if (!authReq.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const userId = authReq.user.id;
+
     const orders = await prisma.order.findMany({
       where: { userId },
       include: { orderItems: true },
       orderBy: { createdAt: "desc" },
     });
+
     res.json(orders);
   } catch (error) {
     console.error(error);
