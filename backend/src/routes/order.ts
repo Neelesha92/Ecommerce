@@ -72,4 +72,68 @@ router.get("/", authenticate, async (req: Request, res) => {
   }
 });
 
+// Get a single order details
+router.get("/:id", authenticate, async (req: Request, res) => {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: Number(req.params.id) },
+      include: { orderItems: true, user: true },
+    });
+
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/admin/all", authenticate, async (req, res) => {
+  const authReq = req as AuthRequest;
+  if (authReq.user?.role !== "admin")
+    return res.status(403).json({ message: "Access denied" });
+
+  const { status, search, sort } = req.query;
+
+  const orders = await prisma.order.findMany({
+    where: {
+      ...(status ? { status: String(status) } : {}),
+      ...(search
+        ? {
+            OR: [
+              { id: !isNaN(Number(search)) ? Number(search) : undefined },
+              {
+                user: {
+                  name: { contains: String(search), mode: "insensitive" },
+                },
+              },
+            ].filter(Boolean) as any,
+          }
+        : {}),
+    },
+    include: {
+      orderItems: true,
+      user: true,
+    },
+    orderBy: { createdAt: sort === "oldest" ? "asc" : "desc" }, // default newest first
+  });
+
+  res.json(orders);
+});
+
+router.patch("/status/:id", authenticate, async (req, res) => {
+  const authReq = req as AuthRequest;
+  if (authReq.user?.role !== "admin")
+    return res.status(403).json({ message: "Admin only" });
+
+  const { status } = req.body;
+
+  const updated = await prisma.order.update({
+    where: { id: Number(req.params.id) },
+    data: { status },
+  });
+
+  res.json({ message: "Order status updated", updated });
+});
+
 export default router;

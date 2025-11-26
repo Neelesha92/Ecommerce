@@ -24,6 +24,7 @@ import PrivateRoute from "./components/privateRoute";
 import { AuthProvider } from "./context/authcontext";
 import { CartProvider } from "./context/cartContext";
 import Checkout from "./pages/checkout";
+import AdminOrders from "./pages/admin/orders";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -81,6 +82,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                       element={<EditCategory />}
                     />
                     <Route path="/add-category" element={<AddCategories />} />
+                    <Route path="/orders" element={<AdminOrders />} />
                   </Routes>
                 </AdminLayout>
               }

@@ -51,6 +51,7 @@ app.use("/api/products", productRoutes);
 app.use("/cart", cartRoutes);
 app.use("/user", userRoutes);
 app.use("/orders", orderRoutes);
+
 // Health check
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
