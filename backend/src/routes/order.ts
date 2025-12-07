@@ -72,22 +72,6 @@ router.get("/", authenticate, async (req: Request, res) => {
   }
 });
 
-// Get a single order details
-router.get("/:id", authenticate, async (req: Request, res) => {
-  try {
-    const order = await prisma.order.findUnique({
-      where: { id: Number(req.params.id) },
-      include: { orderItems: true, user: true },
-    });
-
-    if (!order) return res.status(404).json({ message: "Order not found" });
-
-    res.json(order);
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
 router.get("/admin/all", authenticate, async (req, res) => {
   const authReq = req as AuthRequest;
   if (authReq.user?.role !== "admin")
@@ -119,6 +103,22 @@ router.get("/admin/all", authenticate, async (req, res) => {
   });
 
   res.json(orders);
+});
+
+// Get a single order details
+router.get("/:id", authenticate, async (req: Request, res) => {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: Number(req.params.id) },
+      include: { orderItems: true, user: true },
+    });
+
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 router.patch("/status/:id", authenticate, async (req, res) => {
